@@ -1,0 +1,93 @@
+{
+    "version": "1.2",
+    "title": "Presentations",
+    "icon": "file-powerpoint",
+    "type": "Infrastructure",
+    "css_class": "tile-forest",
+    "datagrid": {
+        "defaults": {
+            "page_size": [
+                25
+            ],
+            "sort_column": "id",
+            "sort_direction": "desc"
+        },
+        "columns": {
+            "id": {
+                "visible": true,
+                "icon": "hashtag",
+                "labels": {
+                    "en": "ID"
+                },
+                "width": 80
+            },
+            "filename": {
+                "visible": true,
+                "labels": {
+                    "en": "Filename"
+                },
+                "width": 300
+            },
+            "title": {
+                "visible": true,
+                "labels": {
+                    "en": "Title"
+                }
+            },
+            "is_template": {
+                "visible": true,
+                "labels": {
+                    "en": "Is Template"
+                },
+                "width": 100
+            },
+            "created_at": {
+                "visible": true,
+                "labels": {
+                    "en": "Imported"
+                },
+                "width": 180
+            },
+            "original_file_path": {
+                "visible": true,
+                "labels": {
+                    "en": "Path"
+                }
+            }
+        }
+    },
+    "objects": [
+        {
+            "name": "slideforge.pptx_files",
+            "type": "table",
+            "description": "Imported PowerPoint presentations.",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "primary_key": true
+                },
+                {
+                    "name": "filename",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "title",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "is_template",
+                    "type": "BOOLEAN"
+                },
+                {
+                    "name": "created_at",
+                    "type": "TIMESTAMP"
+                },
+                {
+                    "name": "original_file_path",
+                    "type": "TEXT"
+                }
+            ]
+        }
+    ]
+}

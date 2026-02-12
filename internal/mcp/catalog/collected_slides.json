@@ -1,0 +1,103 @@
+{
+    "version": "1.2",
+    "title": "Slides",
+    "icon": "tv",
+    "type": "Infrastructure",
+    "css_class": "tile-dark-blue",
+    "datagrid": {
+        "defaults": {
+            "page_size": [
+                25
+            ],
+            "sort_column": "id",
+            "sort_direction": "desc"
+        },
+        "columns": {
+            "id": {
+                "visible": true,
+                "icon": "hashtag",
+                "labels": {
+                    "en": "ID"
+                },
+                "width": 80
+            },
+            "pptx_file_id": {
+                "visible": true,
+                "labels": {
+                    "en": "PPTX ID"
+                },
+                "width": 100
+            },
+            "slide_number": {
+                "visible": true,
+                "labels": {
+                    "en": "Page"
+                },
+                "width": 80
+            },
+            "title": {
+                "visible": true,
+                "labels": {
+                    "en": "Title"
+                }
+            },
+            "content": {
+                "visible": true,
+                "labels": {
+                    "en": "Content"
+                }
+            },
+            "created_at": {
+                "visible": true,
+                "labels": {
+                    "en": "Processed"
+                },
+                "width": 180
+            },
+            "png_path": {
+                "visible": true,
+                "labels": {
+                    "en": "Path"
+                }
+            }
+        }
+    },
+    "objects": [
+        {
+            "name": "slideforge.collected_slides",
+            "type": "table",
+            "description": "Individual processed slides.",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "INTEGER",
+                    "primary_key": true
+                },
+                {
+                    "name": "pptx_file_id",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "slide_number",
+                    "type": "INTEGER"
+                },
+                {
+                    "name": "title",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "content",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "created_at",
+                    "type": "TIMESTAMP"
+                },
+                {
+                    "name": "png_path",
+                    "type": "TEXT"
+                }
+            ]
+        }
+    ]
+}

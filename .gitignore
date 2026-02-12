@@ -1,0 +1,29 @@
+# Binaries and build artifacts
+bin/
+deckforge
+slideforge
+
+# Local Storage and Workspace (Data)
+data/
+uploads/
+thumbnails/
+/storage/
+# Note: Use specific paths if 'template' folder is for data, not source
+/pptx_templates/ 
+
+# Environment and Secrets
+.env
+opt/envs/.env_*
+opt/*.json
+!opt/envs/*.env_*.gpg
+!opt/*.json.gpg
+
+# Logs and Temp
+*.log
+.temp/
+temp/
+temp_*/
+mnt/
+
+# 🛡️ Vault (Encrypted secrets)
+!*.gpg

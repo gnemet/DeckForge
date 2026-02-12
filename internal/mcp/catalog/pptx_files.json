@@ -58,7 +58,7 @@
     },
     "objects": [
         {
-            "name": "slideforge.pptx_files",
+            "name": "deckforge.pptx_files",
             "type": "table",
             "description": "Imported PowerPoint presentations.",
             "columns": [

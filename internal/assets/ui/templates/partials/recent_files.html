@@ -4,8 +4,8 @@
     <div class="pptx-card" onclick="window.location='/selection?fileID={{ .ID }}'" data-id="{{ .ID }}"
         data-filename="{{ .Filename }}">
         <div class="thumbnail">
-            <img src="/thumbnails/{{ .ThumbnailDirPath }}/slide-0001.png" alt="{{ .Filename }}"
-                onerror="this.src='/static/images/slide-placeholder.png'; this.onerror=null;">
+            <img src="{{ if .PreviewThumbnail }}{{ .PreviewThumbnail }}{{ else }}/static/images/slide-placeholder.png{{ end }}"
+                alt="{{ .Filename }}" onerror="this.src='/static/images/slide-placeholder.png'; this.onerror=null;">
         </div>
         <div class="card-info">
             <div style="display: flex; justify-content: space-between; align-items: start;">

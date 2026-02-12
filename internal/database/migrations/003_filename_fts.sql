@@ -1,6 +1,4 @@
 -- Migration to add filename FTS
-SET search_path TO slideforge,
-    public;
 ALTER TABLE pptx_files
 ADD COLUMN IF NOT EXISTS fts_en tsvector GENERATED ALWAYS AS (to_tsvector('english', filename)) STORED;
 ALTER TABLE pptx_files

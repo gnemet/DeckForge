@@ -1,6 +1,7 @@
 # Antigravity Rules for DeckForge
 
 ## 1. Core Behavior
+- **Read-Only Folders**: NEVER modify any files located in the `external_libs/` or `shared_context/` directories. These are for reference only.
 - **Proactive Execution**: Do not ask for permission to run tests, build scripts, or SQL. 
 - **Integrity**: Never modify "copied" files (check source/origin before editing). 
 - **Environment Awareness**: Always use and read the `.env` file from the project root for ALL database and environment configurations. Supporting host-specific environments via `opt/envs/.env_*` and `build_run.sh`.

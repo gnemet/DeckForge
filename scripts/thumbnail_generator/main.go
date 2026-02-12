@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gnemet/DeckForge/internal/config"
 	"github.com/gnemet/DeckForge/internal/pptx"
@@ -17,18 +16,8 @@ func resolvePath(cfg *config.Config, relPath string) string {
 	if filepath.IsAbs(relPath) {
 		return relPath
 	}
-	if strings.HasPrefix(relPath, "stage/") {
-		return filepath.Join(cfg.Application.Storage.Stage, strings.TrimPrefix(relPath, "stage/"))
-	}
-	if strings.HasPrefix(relPath, "original/") {
-		// Note: we need to use the specific original storage path
-		// In our .env, STORAGE_ORIGINAL points to the FDD folder.
-		return filepath.Join(cfg.Application.Storage.Original, strings.TrimPrefix(relPath, "original/"))
-	}
-	if strings.HasPrefix(relPath, "template/") {
-		return filepath.Join(cfg.Application.Storage.Template, strings.TrimPrefix(relPath, "template/"))
-	}
-	return relPath
+	// In the new model, all relative paths are from Storage.Base
+	return filepath.Join(cfg.Application.Storage.Base, relPath)
 }
 
 func main() {
@@ -43,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, filename, original_file_path, thumbnail_dir_path FROM slideforge.pptx_files")
+	rows, err := db.Query("SELECT id, filename, original_file_path, thumbnail_dir_path FROM deckforge.pptx_files")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +47,8 @@ func main() {
 		}
 
 		absOriginalPath := resolvePath(cfg, originalPath)
-		absThumbDir := filepath.Join(cfg.Application.Storage.Thumbnails, thumbDirPath)
+		// For regenerate, we assume thumbnails are also relative to Base
+		absThumbDir := filepath.Join(cfg.Application.Storage.Base, thumbDirPath)
 		checkFile := filepath.Join(absThumbDir, "slide-0001.png")
 
 		if _, err := os.Stat(checkFile); os.IsNotExist(err) {
@@ -72,7 +62,7 @@ func main() {
 			// Ensure thumb dir exists
 			os.MkdirAll(absThumbDir, 0755)
 
-			_, err := pptx.ExtractSlidesToPNG(absOriginalPath, absThumbDir, cfg.Application.Storage.Temp)
+			_, err := pptx.ExtractSlidesToPNG(absOriginalPath, absThumbDir, os.TempDir())
 			if err != nil {
 				log.Printf("ID %d: Failed to regenerate: %v", id, err)
 			} else {

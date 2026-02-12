@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gnemet/DeckForge/internal/config"
@@ -103,7 +104,7 @@ func (c *Client) calculateCost(usage Usage, p config.ProviderSettings) float64 {
 	return inputCost + outputCost
 }
 
-func (c *Client) generateWithMock(ctx context.Context, s config.ProviderSettings, persona Persona, prompt string) (Result, error) {
+func (c *Client) generateWithMock(_ context.Context, _ config.ProviderSettings, _ Persona, prompt string) (Result, error) {
 	// Simple mock for testing without API calls
 	return Result{
 		Content: fmt.Sprintf("[MOCK SUMMARY for: %s...]", prompt[:min(len(prompt), 30)]),
@@ -303,4 +304,18 @@ func (c *Client) generateWithClaude(ctx context.Context, s config.ProviderSettin
 		}, nil
 	}
 	return Result{}, fmt.Errorf("no response from Claude")
+}
+func (c *Client) MergeSlides(ctx context.Context, slides []string) (Result, error) {
+	var sb strings.Builder
+	sb.WriteString("Analyze these similar slides and merge them into a single 'Seed Slide' representation.\n")
+	sb.WriteString("Replace variable parts with {{PLACEHOLDER_NAME}}.\n")
+	sb.WriteString("Return JSON only with fields: 'seed_content' (string), 'placeholders' (array of {name, description, distinct_values}).\n\n")
+
+	for i, s := range slides {
+		sb.WriteString(fmt.Sprintf("Slide %d:\n%s\n\n", i+1, s))
+	}
+
+	persona := PresentationArchitect
+	persona.Instruction += " Output MUST be valid JSON."
+	return c.GenerateContent(ctx, persona, sb.String())
 }

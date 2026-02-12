@@ -28,7 +28,7 @@
     },
     "objects": [
         {
-            "name": "slideforge.search_settings",
+            "name": "deckforge.search_settings",
             "type": "table",
             "description": "Application search configuration.",
             "columns": [

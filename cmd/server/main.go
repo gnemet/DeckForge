@@ -63,20 +63,6 @@ func main() {
 	}
 	defer sqlDB.Close()
 
-	// Set search path explicitly - Jiramntr Style
-	if cfg.Database.Options != "" {
-		_, err = sqlDB.Exec(fmt.Sprintf("SET %s", strings.TrimPrefix(cfg.Database.Options, "-c ")))
-		if err != nil {
-			log.Printf("Warning: Failed to set search_path: %v", err)
-		}
-	} else {
-		// Default search path for DeckForge
-		_, err = sqlDB.Exec("SET search_path TO slideforge, public")
-		if err != nil {
-			log.Printf("Warning: Failed to set default search_path: %v", err)
-		}
-	}
-
 	log.Println("Database connection established")
 
 	// Start Background Observer
@@ -89,8 +75,8 @@ func main() {
 	}()
 
 	// Initialize Directories
-	os.MkdirAll(cfg.Application.Storage.Stage, 0755)
-	os.MkdirAll(cfg.Application.Storage.Thumbnails, 0755)
+	os.MkdirAll(cfg.Application.Storage.Base, 0755)
+	os.MkdirAll(cfg.Application.Storage.Local, 0755)
 
 	i18nFS, _ := fs.Sub(assets.EmbeddedAssets, "resources")
 	i18n.Init(i18nFS)
@@ -108,6 +94,9 @@ func main() {
 		},
 		"contains": func(s, substr string) bool {
 			return strings.Contains(s, substr)
+		},
+		"hasPrefix": func(s, prefix string) bool {
+			return strings.HasPrefix(s, prefix)
 		},
 		"mul": func(a, b int) int {
 			return a * b
@@ -148,8 +137,8 @@ func main() {
 	staticUI, _ := fs.Sub(assets.EmbeddedAssets, "ui/static")
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticUI))))
 
-	log.Printf("Serving thumbnails from: %s", cfg.Application.Storage.Thumbnails)
-	http.Handle("/thumbnails/", http.StripPrefix("/thumbnails/", http.FileServer(http.Dir(cfg.Application.Storage.Thumbnails))))
+	log.Printf("Serving thematic content (thumbnails) from: %s", cfg.Application.Storage.Base)
+	http.Handle("/thumbnails/", http.StripPrefix("/thumbnails/", http.FileServer(http.Dir(cfg.Application.Storage.Base))))
 
 	// Datagrid library assets (Embedded in library)
 	sub, _ := fs.Sub(datagrid.UIAssets, "ui/static")
@@ -311,35 +300,11 @@ func handleReprocessFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// copy back to stage
-	destPath := filepath.Join(cfg.Application.Storage.Stage, filename)
-	// physical source path logic
-	physicalPath := originalPath
-	if !filepath.IsAbs(originalPath) {
-		parts := strings.Split(originalPath, "/")
-		if len(parts) > 1 {
-			category := parts[0]
-			rel := filepath.Join(parts[1:]...)
-			switch category {
-			case "template":
-				physicalPath = filepath.Join(cfg.Application.Storage.Template, rel)
-			case "stage":
-				physicalPath = filepath.Join(cfg.Application.Storage.Stage, rel)
-			}
-		}
-	}
-
-	if physicalPath != destPath {
-		err = copyFile(physicalPath, destPath)
-		if err != nil {
-			log.Printf("Failed to copy file to stage: %v", err)
-			http.Error(w, "Failed to copy file", http.StatusInternalServerError)
-			return
-		}
-	}
+	// Resolve physical path using Base
+	physicalPath := filepath.Join(cfg.Application.Storage.Base, originalPath)
 
 	// Trigger processing immediately (force=true bypasses AUTO toggle)
-	go obs.ProcessFile(destPath, true)
+	go obs.ProcessFile(physicalPath, "full", "", true)
 
 	w.Header().Set("HX-Trigger", "refreshFiles")
 	w.WriteHeader(http.StatusOK)
@@ -371,26 +336,6 @@ func handleCopyToStage(w http.ResponseWriter, r *http.Request) {
 	handleReprocessFile(w, r)
 }
 
-func copyFile(src, dst string) error {
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-	return out.Close()
-}
-
 func handleCommentEditor(w http.ResponseWriter, r *http.Request) {
 	fileID := r.URL.Query().Get("fileID")
 	slideNumStr := r.URL.Query().Get("slide")
@@ -406,22 +351,8 @@ func handleCommentEditor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	physicalPath := originalPath
-	if !filepath.IsAbs(originalPath) {
-		parts := strings.Split(originalPath, "/")
-		if len(parts) > 1 {
-			category := parts[0]
-			rel := filepath.Join(parts[1:]...)
-			switch category {
-			case "template":
-				physicalPath = filepath.Join(cfg.Application.Storage.Template, rel)
-			case "stage":
-				physicalPath = filepath.Join(cfg.Application.Storage.Stage, rel)
-			case "original":
-				physicalPath = filepath.Join(cfg.Application.Storage.Original, rel)
-			}
-		}
-	}
+	// Resolve physical path using Base
+	physicalPath := filepath.Join(cfg.Application.Storage.Base, originalPath)
 
 	content, err := pptx.ExtractSlideContent(physicalPath)
 	if err != nil {
@@ -537,23 +468,8 @@ func handleSaveSlideText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Resolve physical path
-	physicalPath := originalPath
-	if !filepath.IsAbs(originalPath) {
-		parts := strings.Split(originalPath, "/")
-		if len(parts) > 1 {
-			category := parts[0]
-			rel := filepath.Join(parts[1:]...)
-			switch category {
-			case "template":
-				physicalPath = filepath.Join(cfg.Application.Storage.Template, rel)
-			case "stage":
-				physicalPath = filepath.Join(cfg.Application.Storage.Stage, rel)
-			case "original":
-				physicalPath = filepath.Join(cfg.Application.Storage.Remote, rel)
-			}
-		}
-	}
+	// Resolve physical path using Base
+	physicalPath := filepath.Join(cfg.Application.Storage.Base, originalPath)
 
 	err = pptx.UpdateSlideText(physicalPath, slideNum, shapeIdx, text)
 	if err != nil {
@@ -586,7 +502,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 	var rows *sql.Rows
 	var err error
 
-	sqlDB.Exec("SET search_path TO slideforge, public")
+	sqlDB.Exec("SET search_path TO deckforge, public")
 
 	switch mode {
 	case "similarity":
@@ -718,6 +634,16 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// For now, if Tenant/Theme not provided, use BDO/FDD as default
+	tenant := r.FormValue("tenant")
+	if tenant == "" {
+		tenant = "BDO"
+	}
+	theme := r.FormValue("theme")
+	if theme == "" {
+		theme = "FDD"
+	}
+
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -725,7 +651,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	destPath := filepath.Join(cfg.Application.Storage.Stage, header.Filename)
+	// Ensure thematic source directory exists
+	sourceDir := filepath.Join(cfg.Application.Storage.Base, tenant, theme, "source")
+	os.MkdirAll(sourceDir, 0755)
+
+	destPath := filepath.Join(sourceDir, header.Filename)
 	dest, err := os.Create(destPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -734,146 +664,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	defer dest.Close()
 	io.Copy(dest, file)
 
-	// Process PPTX to PNGs
-	thumbDir := filepath.Join(cfg.Application.Storage.Thumbnails, header.Filename)
-	pngFiles, err := pptx.ExtractSlidesToPNG(destPath, thumbDir, cfg.Application.Storage.Temp)
-	if err != nil {
-		log.Printf("PNG extraction failed: %v", err)
-	}
+	// In the isolated model, we defer processing to the Observer which will pick it up
+	// and handle the isolated thumbnails and DB entry.
+	// But let's trigger it immediately
+	go obs.ProcessFile(destPath, "full", "", true)
 
-	// Extract Slide Content (Text & Styles)
-	slideDataMap, err := pptx.ExtractSlideContent(destPath)
-	if err != nil {
-		log.Printf("Failed to extract slide content: %v", err)
-	}
-
-	// Insert File into DB
-	fileID, err := database.SavePPTXMetadata(sqlDB, &database.PPTXFile{
-		Filename:         header.Filename,
-		OriginalFilePath: destPath,
-		ThumbnailDirPath: thumbDir,
-		Metadata:         []byte("{}"),
-		AISummary:        "", // Will be updated later
-	})
-	if err != nil {
-		log.Printf("DB insert failed: %v", err)
-	}
-
-	var slideSummaries []string
-	ctx := r.Context()
-
-	// Check if AI is enabled globally and in settings
-	var aiEnabledVal float64
-	sqlDB.QueryRow("SELECT value FROM search_settings WHERE key = 'ai_insights_enabled'").Scan(&aiEnabledVal)
-	aiEnabled := aiEnabledVal > 0.5 || (aiEnabledVal == 0 && cfg.AI.Enabled)
-
-	// Save individual slides
-	for i, png := range pngFiles {
-		slideNum := i + 1
-		content := ""
-		styleJSON := []byte("{}")
-		slideSummary := ""
-		slideTitle := fmt.Sprintf("Slide %d", slideNum) // Default
-
-		if data, ok := slideDataMap[slideNum]; ok {
-			content = data.Text
-			if sj, err := json.Marshal(data.Styles); err == nil {
-				styleJSON = sj
-			}
-
-			// Generate slide summary & title
-			if content != "" && aiEnabled {
-				// Summary
-				result, err := aiClient.SummarizeText(ctx, content)
-				if err == nil {
-					slideSummary = result.Content
-					slideSummaries = append(slideSummaries, result.Content)
-					// Log usage
-					database.LogAIUsage(sqlDB, &database.AIUsage{
-						Provider:         cfg.AI.ActiveProvider,
-						Model:            cfg.AI.Providers[cfg.AI.ActiveProvider].Model,
-						PromptTokens:     result.Usage.PromptTokens,
-						CompletionTokens: result.Usage.CompletionTokens,
-						TotalTokens:      result.Usage.TotalTokens,
-						Cost:             result.Cost,
-					})
-				}
-
-				// Title
-				rawTitleResult, err := aiClient.ExtractSlideTitle(ctx, content)
-				if err == nil && rawTitleResult.Content != "" {
-					slideTitle = fmt.Sprintf("%d. %s", slideNum, rawTitleResult.Content)
-					// Log usage
-					database.LogAIUsage(sqlDB, &database.AIUsage{
-						Provider:         cfg.AI.ActiveProvider,
-						Model:            cfg.AI.Providers[cfg.AI.ActiveProvider].Model,
-						PromptTokens:     rawTitleResult.Usage.PromptTokens,
-						CompletionTokens: rawTitleResult.Usage.CompletionTokens,
-						TotalTokens:      rawTitleResult.Usage.TotalTokens,
-						Cost:             rawTitleResult.Cost,
-					})
-				}
-			}
-		}
-
-		// The `png` variable already contains the full path relative to the web root, e.g., "thumbnails/filename/slide_X.png"
-		// So, we just need to ensure it's slash-separated.
-		// Ensure all thumbnail paths start with 'thumbnails/'
-		relPNGPath, _ := filepath.Rel(thumbDir, png)
-		thumbSubPath := filepath.Base(thumbDir) // This is header.Filename
-		err = database.SaveSlide(sqlDB, &database.Slide{
-			PPTXFileID: fileID,
-			SlideNum:   slideNum,
-			PNGPath:    filepath.ToSlash(filepath.Join(thumbSubPath, relPNGPath)),
-			Content:    content,
-			StyleInfo:  styleJSON,
-			AIAnalysis: []byte("{}"),
-			AISummary:  slideSummary,
-			Title:      slideTitle,
-		})
-		if err != nil {
-			log.Printf("Failed to save slide %d: %v", slideNum, err)
-		}
-	}
-
-	// Generate overall summary & title
-	if len(slideSummaries) > 0 && aiEnabled {
-		// Summary
-		fullTextForSummary := strings.Join(slideSummaries, "\n")
-		overallSummaryResult, err := aiClient.SummarizeText(ctx, "Provide a concise summary of this presentation based on its slide summaries: \n"+fullTextForSummary)
-		if err == nil {
-			database.UpdatePPTXSummary(sqlDB, fileID, overallSummaryResult.Content)
-			// Log usage
-			database.LogAIUsage(sqlDB, &database.AIUsage{
-				Provider:         cfg.AI.ActiveProvider,
-				Model:            cfg.AI.Providers[cfg.AI.ActiveProvider].Model,
-				PromptTokens:     overallSummaryResult.Usage.PromptTokens,
-				CompletionTokens: overallSummaryResult.Usage.CompletionTokens,
-				TotalTokens:      overallSummaryResult.Usage.TotalTokens,
-				Cost:             overallSummaryResult.Cost,
-			})
-		}
-
-		// Title (from first slide)
-		if data, ok := slideDataMap[1]; ok && data.Text != "" {
-			titleResult, err := aiClient.ExtractTitle(ctx, data.Text)
-			if err == nil && titleResult.Content != "" {
-				database.UpdatePPTXTitle(sqlDB, fileID, titleResult.Content)
-				// Log usage
-				database.LogAIUsage(sqlDB, &database.AIUsage{
-					Provider:         cfg.AI.ActiveProvider,
-					Model:            cfg.AI.Providers[cfg.AI.ActiveProvider].Model,
-					PromptTokens:     titleResult.Usage.PromptTokens,
-					CompletionTokens: titleResult.Usage.CompletionTokens,
-					TotalTokens:      titleResult.Usage.TotalTokens,
-					Cost:             titleResult.Cost,
-				})
-			}
-		}
-	}
-
-	// Redirect to selection view for this file
-	http.Redirect(w, r, fmt.Sprintf("/selection?fileID=%d", fileID), http.StatusSeeOther)
+	w.Header().Set("HX-Trigger", "refreshFiles")
+	w.WriteHeader(http.StatusOK)
 }
 
 func handleSelection(w http.ResponseWriter, r *http.Request) {
@@ -955,7 +752,7 @@ func handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		for _, selNum := range selectedSlides {
 			var num int
 			fmt.Sscanf(selNum, "%d", &num)
-			if s.SlideNum == num {
+			if s.SlideNumber == num {
 				selectedPath = s.PNGPath
 				break
 			}

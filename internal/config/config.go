@@ -15,6 +15,7 @@ type Config struct {
 	AI          AIConfig          `mapstructure:"ai"`
 	Application ApplicationConfig `mapstructure:"application"`
 	Ldap        LdapConfig        `mapstructure:"ldap"`
+	Tenant      TenantConfig      `mapstructure:"tenant"`
 }
 
 type ApplicationConfig struct {
@@ -34,15 +35,12 @@ type ApplicationConfig struct {
 }
 
 type StorageConfig struct {
-	// Original deprecated, use Stage
-	Original   string `mapstructure:"original"`
-	Thumbnails string `mapstructure:"thumbnails"`
-	Stage      string `mapstructure:"stage"`
-	Template   string `mapstructure:"template"`
-	Local      string `mapstructure:"local"`
-	Remote     string `mapstructure:"remote"`
-	Temp       string `mapstructure:"temp"`
-	Log        string `mapstructure:"log"`
+	Base  string `mapstructure:"base"`
+	Local string `mapstructure:"local"`
+}
+
+type TenantConfig struct {
+	Default string `mapstructure:"default"`
 }
 
 type AIConfig struct {
@@ -108,6 +106,9 @@ func (c *DatabaseConfig) GetConnectStr() string {
 		// Basic URL encoding for the options value: space -> %20
 		encodedOptions := strings.ReplaceAll(c.Options, " ", "%20")
 		connStr += fmt.Sprintf("&options=%s", encodedOptions)
+	} else {
+		// Default search path for DeckForge
+		connStr += "&options=-c%20search_path=deckforge,public"
 	}
 
 	return connStr
@@ -136,18 +137,13 @@ func LoadConfig() (*Config, error) {
 		{"application.port", "PORT"},
 		{"application.authentication", "AUTH_ENABLED"},
 		{"application.auth_type", "AUTH_TYPE"},
+		{"application.tenant_id", "TENANT_ID"}, // Added mapping for TenantID
 		{"ai.enabled", "AI_ENABLED"},
 		{"ai.active_provider", "AI_PROVIDER"},
 
 		// Storage
-		{"application.storage.original", "STORAGE_ORIGINAL"},
-		{"application.storage.stage", "STORAGE_STAGE"},
-		{"application.storage.template", "STORAGE_TEMPLATE"},
-		{"application.storage.thumbnails", "STORAGE_THUMBNAILS"},
+		{"application.storage.base", "STORAGE_BASE"},
 		{"application.storage.local", "STORAGE_LOCAL"},
-		{"application.storage.remote", "STORAGE_REMOTE"},
-		{"application.storage.temp", "STORAGE_TEMP"},
-		{"application.storage.log", "STORAGE_LOG"},
 
 		{"ai.providers.gemini.key", "GEMINI_KEY"},
 		{"ai.providers.gemini.model", "GEMINI_MODEL"},
@@ -170,6 +166,7 @@ func LoadConfig() (*Config, error) {
 		{"ldap.prefix", "LDAP_PREFIX"},
 		{"ldap.postfix", "LDAP_POSTFIX"},
 		{"ldap.search_filter", "LDAP_SEARCH_FILTER"},
+		{"tenant.default", "DEFAULT_TENANT"}, // Added mapping for tenant.default
 	}
 
 	for _, m := range mappings {
@@ -187,7 +184,9 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("ldap.postfix", "@alig.hu")
 
 	if err := viper.ReadInConfig(); err != nil {
-		// Ignore if config.yaml is missing
+		log.Printf("Note: Could not read config.yaml: %v", err)
+	} else {
+		log.Printf("DEBUG: Loaded config from %s", viper.ConfigFileUsed())
 	}
 
 	var cfg Config
@@ -195,19 +194,16 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	log.Printf("DEBUG: Viper application.storage.base: '%s'", viper.GetString("application.storage.base"))
+	log.Printf("DEBUG: Struct application.storage.base: '%s'", cfg.Application.Storage.Base)
+
 	if cfg.AI.ActiveProvider == "" {
 		cfg.AI.ActiveProvider = "gemini"
 	}
 
 	// Expand environment variables in storage paths recursively
-	cfg.Application.Storage.Original = expandRecursive(cfg.Application.Storage.Original)
-	cfg.Application.Storage.Thumbnails = expandRecursive(cfg.Application.Storage.Thumbnails)
-	cfg.Application.Storage.Stage = expandRecursive(cfg.Application.Storage.Stage)
-	cfg.Application.Storage.Template = expandRecursive(cfg.Application.Storage.Template)
+	cfg.Application.Storage.Base = expandRecursive(cfg.Application.Storage.Base)
 	cfg.Application.Storage.Local = expandRecursive(cfg.Application.Storage.Local)
-	cfg.Application.Storage.Remote = expandRecursive(cfg.Application.Storage.Remote)
-	cfg.Application.Storage.Temp = expandRecursive(cfg.Application.Storage.Temp)
-	cfg.Application.Storage.Log = expandRecursive(cfg.Application.Storage.Log)
 
 	return &cfg, nil
 }

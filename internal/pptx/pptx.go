@@ -161,6 +161,11 @@ type JSONSlide struct {
 type Shape struct {
 	Index int       `json:"index"`
 	Type  string    `json:"type"` // title | body | other
+	X     float64   `json:"x"`
+	Y     float64   `json:"y"`
+	W     float64   `json:"w"`
+	H     float64   `json:"h"`
+	Text  string    `json:"text"`
 	Runs  []TextRun `json:"runs"`
 }
 
@@ -509,6 +514,30 @@ func parseSlideXML(r io.Reader, index int) (*JSONSlide, string, error) {
 					}
 				}
 
+			case "off": // offset (X, Y)
+				if currentShape != nil {
+					for _, a := range el.Attr {
+						val, _ := strconv.ParseFloat(a.Value, 64)
+						if a.Name.Local == "x" {
+							currentShape.X = val / 12192000.0 * 100.0 // Normalize to 16:9 approx
+						} else if a.Name.Local == "y" {
+							currentShape.Y = val / 6858000.0 * 100.0
+						}
+					}
+				}
+
+			case "ext": // extent (W, H)
+				if currentShape != nil {
+					for _, a := range el.Attr {
+						val, _ := strconv.ParseFloat(a.Value, 64)
+						if a.Name.Local == "cx" {
+							currentShape.W = val / 12192000.0 * 100.0
+						} else if a.Name.Local == "cy" {
+							currentShape.H = val / 6858000.0 * 100.0
+						}
+					}
+				}
+
 			case "latin": // font family
 				if currentRun != nil {
 					for _, a := range el.Attr {
@@ -545,6 +574,7 @@ func parseSlideXML(r io.Reader, index int) (*JSONSlide, string, error) {
 					// Append text to builder regardless of shape separation, adding space for separation
 					if currentRun.Text != "" {
 						currentShape.Runs = append(currentShape.Runs, *currentRun)
+						currentShape.Text += currentRun.Text + " "
 						textBuilder.WriteString(currentRun.Text)
 						textBuilder.WriteString(" ")
 					}
@@ -746,6 +776,59 @@ func ReplacePlaceholders(srcPath, dstPath string, mapping map[string]string) err
 				return err
 			}
 			rc.Close()
+		}
+	}
+
+	return nil
+}
+
+// UnpackPPTX extracts all files from the PPTX zip into the target directory.
+// This is used for absolute isolation in the 'unpack' folder.
+func UnpackPPTX(pptxPath, outputDir string) error {
+	r, err := zip.OpenReader(pptxPath)
+	if err != nil {
+		return fmt.Errorf("failed to open pptx for unpacking: %v", err)
+	}
+	defer r.Close()
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create unpack directory: %v", err)
+	}
+
+	for _, f := range r.File {
+		// Clean the path to prevent zip slip
+		relPath := filepath.Clean(f.Name)
+		if strings.HasPrefix(relPath, "..") {
+			continue // Skip dangerous paths
+		}
+
+		destPath := filepath.Join(outputDir, f.Name)
+
+		if f.FileInfo().IsDir() {
+			os.MkdirAll(destPath, f.Mode())
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+			return err
+		}
+
+		dst, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		src, err := f.Open()
+		if err != nil {
+			dst.Close()
+			return err
+		}
+
+		_, err = io.Copy(dst, src)
+		src.Close()
+		dst.Close()
+		if err != nil {
+			return fmt.Errorf("failed to unpack file %s: %v", f.Name, err)
 		}
 	}
 

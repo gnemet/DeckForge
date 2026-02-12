@@ -1,12 +1,9 @@
 -- Migration to add comments to slides and include them in FTS
-SET search_path TO slideforge,
-    public;
 -- 1. Add comments column to collected_slides if not exists
 DO $$ BEGIN IF NOT EXISTS (
     SELECT 1
     FROM information_schema.columns
-    WHERE table_schema = 'slideforge'
-        AND table_name = 'collected_slides'
+    WHERE table_name = 'collected_slides'
         AND column_name = 'comments'
 ) THEN
 ALTER TABLE collected_slides

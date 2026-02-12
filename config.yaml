@@ -9,7 +9,12 @@ application:
   engine: "Antigravity Engine"
   reference_doc_path: "docs/architecture/tech_stack.md"
   parser_rules_doc_path: "docs/implementation/development_workflow.md"
-
+  storage:
+    base: "/home/gnemet/DeckForgeFiles"
+    local: "/home/gnemet/.deckforge/local"
+ 
+tenant:
+  default: "BDO"
 
 ai:
   active_provider: "gemini"

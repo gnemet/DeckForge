@@ -2,9 +2,7 @@
 -- PostgreSQL 18
 -- Patterned after Jiramntr Ecosystem
 -- Create and set schema
-CREATE SCHEMA IF NOT EXISTS slideforge;
-SET search_path TO slideforge,
-    public;
+CREATE SCHEMA IF NOT EXISTS deckforge;
 -- 1. PPTX FILES
 DROP TABLE IF EXISTS pptx_files CASCADE;
 CREATE TABLE pptx_files (

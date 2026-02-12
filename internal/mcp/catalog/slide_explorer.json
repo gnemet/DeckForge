@@ -65,7 +65,7 @@
     },
     "objects": [
         {
-            "name": "slideforge.slide_explorer",
+            "name": "deckforge.slide_explorer",
             "type": "view",
             "description": "Unified view of files and slides.",
             "columns": [

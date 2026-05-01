@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI-Native PPTX Generation — DeckForge</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#3b82f6',
+      primaryTextColor: '#fff',
+      primaryBorderColor: '#2563eb',
+      lineColor: '#64748b',
+      secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc',
+      fontFamily: 'Segoe UI, sans-serif',
+      fontSize: '14px'
+    }
+  });
+</script>
+<style>
+  @media print {
+    @page { margin: 1.8cm; size: A4; }
+    body { font-size: 10pt; }
+    pre { page-break-inside: avoid; }
+    h2, h3 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+    .mermaid { page-break-inside: avoid; }
+    .print-btn { display: none; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-size: 11pt; line-height: 1.65; color: #1e293b;
+    max-width: 960px; margin: 0 auto; padding: 40px 30px;
+    background: #fff;
+  }
+  h1 {
+    color: #0f172a; font-size: 26pt; font-weight: 700;
+    border-bottom: 3px solid #3b82f6; padding-bottom: 12px; margin-top: 0;
+  }
+  h2 {
+    color: #1e293b; font-size: 17pt; font-weight: 600;
+    border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 36px;
+  }
+  h3 {
+    color: #334155; font-size: 13pt; font-weight: 600; margin-top: 24px;
+  }
+  blockquote {
+    border-left: 4px solid #3b82f6; padding: 12px 20px;
+    background: #f1f5f9; margin: 16px 0; font-style: italic; color: #475569;
+    border-radius: 0 6px 6px 0;
+  }
+  table {
+    border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10pt;
+  }
+  th {
+    background: #1e293b; color: white; padding: 10px 14px; text-align: left;
+    font-weight: 600;
+  }
+  td {
+    border: 1px solid #e2e8f0; padding: 8px 14px; color: #334155;
+  }
+  tr:nth-child(even) { background: #f8fafc; }
+  tr:hover { background: #f1f5f9; }
+  code {
+    background: #f1f5f9; padding: 2px 6px; border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; font-size: 9.5pt;
+    color: #be185d;
+  }
+  pre {
+    background: #0f172a; color: #e2e8f0; padding: 18px; border-radius: 8px;
+    overflow-x: auto; font-size: 9pt; line-height: 1.5;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  hr {
+    border: none; border-top: 2px solid #e2e8f0; margin: 32px 0;
+  }
+  ul, ol { padding-left: 22px; }
+  li { margin-bottom: 6px; color: #334155; }
+  em { color: #64748b; }
+  strong { color: #0f172a; }
+  .mermaid {
+    text-align: center; margin: 24px 0; padding: 20px;
+    background: #f8fafc; border-radius: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  .print-btn {
+    position: fixed; top: 20px; right: 20px;
+    background: #3b82f6; color: white; border: none;
+    padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    z-index: 1000; transition: all 0.2s;
+  }
+  .print-btn:hover { background: #2563eb; transform: translateY(-1px); }
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+<h1 id="ai-nativ-pptx-generalas-a-deckforge-vizio">AI-Natív PPTX Generálás: A DeckForge Vízió</h1>
+<blockquote>
+<p><strong>Nincs sablon. Nincs placeholder. Az AI írja a prezentációt. Te elküldöd.</strong>
+<strong>Az AI kutatja a megrendelőt. Az AI tanul minden elfogadott ajánlatból.</strong></p>
+</blockquote>
+<p><em>Dokumentum verzió: 1.1.0 | 2026. február | Az Antigravity Intelligence Ökoszisztéma része</em></p>
+<hr />
+<h2 id="1-vezetoi-osszefoglalo">1. Vezetői Összefoglaló</h2>
+<p>A DeckForge célja a manuális prezentáció-készítés kiváltása visszatérő üzleti dokumentumoknál: <strong>Pénzügyi Átvilágítás (FDD)</strong>, <strong>Adóátvilágítás (TDD)</strong> és <strong>Belső Audit (IA)</strong> ajánlatoknál.</p>
+<p>Az AI <strong>1000+ korábbi prezentációból</strong> tanul, aktívan kutatja a megrendelőt az internetről, és komplett, márkázott, küldésre kész PPTX fájlokat generál egy <strong>30 másodperces emberi briefingből</strong>.</p>
+<h3 id="hagyomanyos-vs-ai-nativ-megkozelites">Hagyományos vs. AI-Natív megközelítés</h3>
+<table>
+<thead>
+<tr>
+<th>Hagyományos (régi módszer)</th>
+<th>AI-Natív (DeckForge)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Régi deck másolása, ügyfélnév cseréje</td>
+<td>Az AI friss, kontextuális tartalmat ír</td>
+</tr>
+<tr>
+<td>Placeholder-ek keresése és cseréje</td>
+<td>Az AI dönt a struktúráról, elrendezésről, szövegről</td>
+</tr>
+<tr>
+<td>2-4 óra kézi szerkesztés</td>
+<td>30 másodperc input, kész prezentáció</td>
+</tr>
+<tr>
+<td>Ingadozó minőség</td>
+<td>Az AI desztillált legjobb gyakorlatokat alkalmaz</td>
+</tr>
+<tr>
+<td>Tudás egyedi fájlokba ragadva</td>
+<td>Kereshető RAG vektor-adatbázis</td>
+</tr>
+<tr>
+<td>A tanácsadó egyedül Google-özik</td>
+<td>Az AI kutatja az ügyfelet webről és LLM-ből</td>
+</tr>
+<tr>
+<td>Elfogadott deck-ek a SharePoint-on rohadnak</td>
+<td>Az elfogadott deck-ek visszatáplálják az AI agyát</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-architektura-az-ot-motor">2. Architektúra: Az Öt Motor</h2>
+<p>A DeckForge öt motorból áll, amelyek folyamatos ciklusban működnek együtt:</p>
+<div class='mermaid'>flowchart LR
+    subgraph INPUT["Emberi Briefing"]
+        B["30 mp Brief\nKi / Mit / Mikor"]
+    end
+
+    subgraph ENGINES["DeckForge Motorok"]
+        direction TB
+        SM["1. SlideMind\nA Memória\n1000+ PPTX"]
+        AI["2. Aktív Intelligencia\nA Kutató\nWeb + LLM"]
+        JO["3. Johanna\nAz Agy\nRAG + AI"]
+        SF["4. SlideForge\nA Kéz\npython-pptx"]
+    end
+
+    subgraph DB["bdo_db"]
+        PG["PostgreSQL\npgvector\n3072-dim"]
+    end
+
+    subgraph OUTPUT["Kimenet"]
+        PPTX["Küldésre kész\n.pptx fájl"]
+    end
+
+    subgraph FEEDBACK["5. Visszacsatolás"]
+        FB["Elfogadott deck\nújrafeldolgozva\nTudás növekszik"]
+    end
+
+    SM -->|beágyazás| PG
+    AI -->|ügyfél adatok| PG
+    B --> JO
+    PG -->|kontextus| JO
+    JO -->|JSON Blueprint| SF
+    SF --> PPTX
+    PPTX -->|elfogadva| FB
+    FB -->|újrafeldolgozás| PG
+
+    style SM fill:#3b82f6,color:#fff
+    style AI fill:#8b5cf6,color:#fff
+    style JO fill:#f59e0b,color:#000
+    style SF fill:#10b981,color:#fff
+    style FB fill:#ef4444,color:#fff
+    style PG fill:#1e293b,color:#fff
+    style PPTX fill:#22c55e,color:#fff
+    style B fill:#f3bc09,color:#000</div>
+
+<hr />
+<h3 id="motor-1-slidemind-a-memoria">Motor 1: SlideMind — A Memória</h3>
+<p><strong>Cél</strong>: Minden korábbi prezentáció minden diájának kinyerése, elemzése és vektorizálása.</p>
+<ul>
+<li>Tematikus mappák szkennelése (<code>/BDO/FDD/source/</code>, <code>/BDO/TDD/source/</code>)</li>
+<li>Szöveg, stílusok, megjegyzések és struktúra kinyerése minden diából</li>
+<li>AI összefoglalók generálása diánként és prezentációnként</li>
+<li>Minden adat tárolása PostgreSQL-ben pgvector embedding-ekkel</li>
+<li>Tudás csoportosítása bérlő és téma szerint (<code>SummarizeTheme</code>)</li>
+<li>Tematikus "seed" tudás előállítása (egyesített legjobb gyakorlatok)</li>
+</ul>
+<p><strong>Állapot</strong>: Működőképes — 22+ PPTX fájl feldolgozva és beágyazva a bdo_db-be.</p>
+<h3 id="motor-2-aktiv-intelligencia-a-kutato">Motor 2: Aktív Intelligencia — A Kutató</h3>
+<p><strong>Cél</strong>: A briefing gazdagítása valós információkkal az ügyfélről.</p>
+<ul>
+<li><strong>Webes kutatás</strong>: Az interneten keresi a célvállalatot (pénzügyi jelentések, hírek, tulajdonosi struktúra, hatósági nyilvántartások, versenytársak)</li>
+<li><strong>LLM Általános Tudás</strong>: A Gemini beépített világtudásának felhasználása iparágakról, piaci trendekről, szabályozási keretrendszerekről (MNB bankszektornál, ÁFA szabályok adónál)</li>
+<li><strong>Gazdagított Kontextus</strong>: Webes eredmények + LLM tudás + RAG adatok egyesítése egyetlen átfogó kontextusba</li>
+</ul>
+<p><strong>Példa</strong>: Amikor a briefing "Acme Corp, logisztikai cég"-ről szól, az AI automatikusan:
+- Megtalálja az Acme Corp éves bevételét, alkalmazotti létszámát, legutóbbi felvásárlásait
+- Azonosítja a logisztikai cégek fő szabályozási kockázatait Magyarországon
+- Feltárja az aktuális M&amp;A trendeket a szektorban
+- Mindezt beépíti a prezentáció tartalmába (pl. "Iparági Kontextus" dia)</p>
+<p><strong>Állapot</strong>: Fejlesztés alatt (Gemini Search Grounding API + egyedi scraping).</p>
+<h3 id="motor-3-johanna-az-agy">Motor 3: Johanna — Az Agy</h3>
+<p><strong>Cél</strong>: A briefing megértése, tudás visszakeresése, strukturált dia blueprint generálása.</p>
+<ul>
+<li>Természetes nyelvű briefing fogadása (ki, mit, mikor)</li>
+<li>Három tudásforrás kombinálása: <strong>RAG</strong> (korábbi deck-ek) + <strong>Webes Kutatás</strong> (élő adatok) + <strong>LLM Tudás</strong> (általános szakértelem)</li>
+<li><strong>JSON Slide Blueprint</strong> generálása — minden dia strukturált leírása</li>
+<li>Minden dia tartalmazza: típust, címet, tartalmat, felsoroláspontokat, táblázatokat, elrendezési utasításokat</li>
+</ul>
+<p><strong>Állapot</strong>: RAG visszakeresés működik (0.72-0.75 hasonlósági pontszám FDD lekérdezéseknél).</p>
+<h3 id="motor-4-slideforge-a-kez">Motor 4: SlideForge — A Kéz</h3>
+<p><strong>Cél</strong>: A JSON blueprint alapján valódi .pptx fájl előállítása BDO arculattal.</p>
+<ul>
+<li>JSON Slide Blueprint beolvasása Johanna-tól</li>
+<li>BDO Master Layout fájl megnyitása (márkaszínek, betűtípusok, logó — tartalom nélkül)</li>
+<li>Minden dia programozott létrehozása python-pptx használatával</li>
+<li>A megfelelő elrendezés kiválasztása minden dia-típushoz (borító, felsorolás, táblázat, csapat, ütemterv)</li>
+<li>Végleges .pptx exportálása, e-mailre készen</li>
+</ul>
+<p><strong>Állapot</strong>: Fejlesztés alatt.</p>
+<h3 id="motor-5-visszacsatolasi-hurok-a-tanulasi-ciklus">Motor 5: Visszacsatolási Hurok — A Tanulási Ciklus</h3>
+<p><strong>Cél</strong>: Minden elfogadott ajánlat okosabbá teszi az AI-t.</p>
+<p>Amikor egy tanácsadó "Elfogadott / Elküldve az ügyfélnek" jelöléssel lát el egy generált PPTX-et:</p>
+<ol>
+<li><strong>Újrafeldolgozza</strong> a végleges PPTX-et (beleértve az emberi módosításokat) a SlideMind-ba</li>
+<li><strong>Beágyazza</strong> az új tartalmat a bdo_db-be friss vektor-tudásként</li>
+<li><strong>Címkézi</strong> kimenet-metaadatokkal (ügyfél, szolgáltatás típusa, üzlet mérete, nyert/vesztett)</li>
+<li><strong>Gazdagítja a Golden Seed-eket</strong>: Az összefoglaló egyesíti az elfogadott deck mintáit a tematikus seed-be</li>
+</ol>
+<p>Az AI tudása <strong>organikusan növekszik</strong> — minden sikeres ajánlat megtanítja, mi működik. A webes kutatás adatai is tárolódnak, felépítve egy <strong>ügyfél-intelligencia adatbázist</strong>.</p>
+<p><strong>Az erényes kör</strong>:
+- Deck generálás → Emberi átnézés → Elfogadva → Újrafeldolgozás → Jobb jövőbeli deck-ek
+- Deck generálás → Emberi szerkesztés → Elfogadva → Javításokkal újrafeldolgozás → AI tanul a módosításokból
+- Deck generálás → Elutasítva → Tanácsadói visszajelzés → AI újragenerál a módosításokkal</p>
+<p><strong>Állapot</strong>: Tervezés alatt.</p>
+<hr />
+<h2 id="3-a-munkafolyamat-briefingtol-a-deck-ig">3. A Munkafolyamat: Briefingtől a Deck-ig</h2>
+<div class='mermaid'>sequenceDiagram
+    actor C as Tanácsadó
+    participant B as Briefing
+    participant AI2 as Aktív Intelligencia
+    participant R as RAG / bdo_db
+    participant J as Johanna AI
+    participant SF as SlideForge
+    participant FB as Visszacsatolás
+
+    C->>B: 30 mp briefing (ki, mit, mikor)
+    B->>AI2: Ügyfél kutatása
+    AI2->>AI2: Webes keresés + LLM tudás
+    AI2->>J: Gazdagított ügyfél kontextus
+    B->>R: Hasonló korábbi deck-ek keresése
+    R->>J: Top-K releváns diák + módszertan
+    J->>J: RAG + Web + LLM kombinálás
+    J->>SF: JSON Slide Blueprint
+    SF->>SF: Diák építése BDO arculattal
+    SF->>C: Kész .pptx fájl
+    C->>C: Átnézés és kisebb módosítások
+    C->>FB: Elfogadottnak jelölés
+    FB->>R: Végleges deck + web adatok újrafeldolgozása
+    Note over R: Tudás növekszik</div>
+
+<h3 id="1-lepes-emberi-briefing-30-masodperc">1. lépés: Emberi Briefing (30 másodperc)</h3>
+<p>A tanácsadó minimális inputot ad:</p>
+<pre><code class="language-yaml">ugyfel: &quot;Acme Corporation&quot;
+celvalallat: &quot;MBH Bank - ATM Divízió&quot;
+szolgaltatas: &quot;FDD + TDD&quot;
+iparag: &quot;Pénzügyi szolgáltatások / Bankszolgáltatások&quot;
+idokeret: &quot;6 hét&quot;
+csapatvezeto: &quot;Dr. Kovács Péter&quot;
+nyelv: &quot;Magyar&quot;
+megjegyzes: &quot;Fókusz a szabályozási megfelelőségre (MNB)&quot;
+</code></pre>
+<h3 id="2-lepes-aktiv-intelligencia-ugyfelkutatas-automatikus">2. lépés: Aktív Intelligencia — Ügyfélkutatás (Automatikus)</h3>
+<p>Az AI az első szó leírása előtt <strong>kutatja az ügyfelet</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Forrás</th>
+<th>Mit talál</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Webes keresés</strong></td>
+<td>Acme Corp weboldala, hírek, pénzügyi jelentések, tulajdonosi struktúra</td>
+</tr>
+<tr>
+<td><strong>Hatósági nyilvántartások</strong></td>
+<td>MNB adatok, cégnyilvántartás (e-cegjegyzek.hu)</td>
+</tr>
+<tr>
+<td><strong>LLM Világtudás</strong></td>
+<td>Bankszektor trendek, ATM piaci dinamika, M&amp;A normák</td>
+</tr>
+<tr>
+<td><strong>LinkedIn / Nyilvános adatok</strong></td>
+<td>Kulcs döntéshozók, cégméret, legutóbbi változások</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-lepes-rag-tudasvisszakereses-automatikus">3. lépés: RAG Tudásvisszakeresés (Automatikus)</h3>
+<p>Johanna lekérdezi a bdo_db-t és visszakeresi:
+- Korábbi FDD ajánlatok hasonló iparágakra (bankszektor, pénzügyi szolgáltatások)
+- Árazási minták 6 hetes megbízásokhoz
+- Standard BDO módszertani szekciók
+- Csapatstruktúra példák pénzügyi szolgáltatásokhoz
+- Szabályozási megfelelőségi nyelvezet korábbi MBH-kapcsolódó munkákból</p>
+<h3 id="4-lepes-ai-tartalom-generalas-automatikus">4. lépés: AI Tartalom-generálás (Automatikus)</h3>
+<p>Az AI <strong>három tudásréteget</strong> kombinál egyetlen kontextuális kimenetbe:
+1. <strong>Belső RAG</strong> — amit a BDO korábban csinált (módszertan, árazás, csapatminták)
+2. <strong>Aktív Intelligencia</strong> — amit az AI az Acme Corp-ról és a bankszektorról talált
+3. <strong>LLM Szakértelem</strong> — általános átvilágítási legjobb gyakorlatok, szabályozási tudás</p>
+<p>Az AI egy <strong>JSON Slide Blueprint</strong>-et állít elő a prezentáció minden diájának strukturált leírásával.</p>
+<h3 id="5-lepes-pptx-osszeallitas-automatikus">5. lépés: PPTX Összeállítás (Automatikus)</h3>
+<p>A SlideForge beolvassa a blueprint-et, megnyitja a BDO Master Layout-ot, és felépíti minden diát:</p>
+<ul>
+<li><strong>Bemenet</strong>: slide_blueprint.json + BDO_Master.pptx (csak arculat)</li>
+<li><strong>Kimenet</strong>: Acme_Corporation_FDD_TDD_Ajanlat_2026.pptx (12 dia, küldésre kész)</li>
+</ul>
+<h3 id="6-lepes-emberi-atnezes-es-visszacsatolas">6. lépés: Emberi Átnézés és Visszacsatolás</h3>
+<p>A tanácsadó megnyitja a PPTX-et, átnézi, szükség esetén kisebb módosításokat végez, majd "Elfogadott" jelöléssel látja el:</p>
+<ul>
+<li><strong>Változtatás nélkül elfogadva</strong> → A deck tökéletes — az AI megtanulja ezt a minőséget ismételni</li>
+<li><strong>Szerkesztés után elfogadva</strong> → Az AI tanul az emberi javításokból — a jövőbeli deck-ek jobbak lesznek</li>
+<li><strong>Elutasítva</strong> → A tanácsadó visszajelzést ad, az AI újragenerál a módosításokkal</li>
+</ul>
+<p>A rendszer újrafeldolgozza a végleges verziót + webes kutatási adatokat a bdo_db-be — <strong>a tudás növekszik</strong>.</p>
+<hr />
+<h2 id="4-technologiai-stack">4. Technológiai Stack</h2>
+<table>
+<thead>
+<tr>
+<th>Réteg</th>
+<th>Technológia</th>
+<th>Cél</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tudástár</td>
+<td>PostgreSQL + pgvector</td>
+<td>Vektor hasonlósági keresés 1000+ deck felett</td>
+</tr>
+<tr>
+<td>Beágyazások</td>
+<td>Gemini embedding-001</td>
+<td>3072-dimenziós vektorok szemantikus kereséshez</td>
+</tr>
+<tr>
+<td>AI Agy</td>
+<td>Gemini 2.5 Flash/Pro</td>
+<td>Tartalom-generálás RAG kontextusból</td>
+</tr>
+<tr>
+<td>Webes Kutatás</td>
+<td>Gemini Search Grounding</td>
+<td>Valós idejű internetes keresés ügyféladatokért</td>
+</tr>
+<tr>
+<td>LLM Tudás</td>
+<td>Gemini (beépített)</td>
+<td>Iparági szakértelem, szabályozás, legjobb gyakorlatok</td>
+</tr>
+<tr>
+<td>PPTX Építő</td>
+<td>python-pptx</td>
+<td>Programozott dia-létrehozás teljes kontrollal</td>
+</tr>
+<tr>
+<td>Arculati Forrás</td>
+<td>BDO Master .pptx</td>
+<td>Dia-elrendezések, színek, betűtípusok, logó</td>
+</tr>
+<tr>
+<td>Vezérlő</td>
+<td>Go (DeckForge CLI)</td>
+<td>Mindent egyetlen parancsba köt össze</td>
+</tr>
+<tr>
+<td>Chat Felület</td>
+<td>Johanna</td>
+<td>Interaktív finomítás és kérdések</td>
+</tr>
+<tr>
+<td>Visszacsatolás Tár</td>
+<td>PostgreSQL</td>
+<td>Elfogadott/elutasított deck-ek + kimenetek nyomon követése</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-a-negy-tudasforras">5. A Négy Tudásforrás</h2>
+<h3 id="forras-1-passziv-tudas-torteneti-rag">Forrás 1: Passzív Tudás (Történeti RAG)</h3>
+<table>
+<thead>
+<tr>
+<th>Szint</th>
+<th>Forrás</th>
+<th>Tárolás</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nyers Diák</td>
+<td>Egyedi dia szövege (10K+)</td>
+<td>deckforge.slide_knowledge</td>
+</tr>
+<tr>
+<td>Beágyazások</td>
+<td>3072-dim vektorok hasonlósághoz</td>
+<td>meta.mcp_embeddings</td>
+</tr>
+<tr>
+<td>Golden Seed-ek</td>
+<td>AI által egyesített legjobb gyakorlatok</td>
+<td>deckforge.summarized_slides</td>
+</tr>
+<tr>
+<td>Elfogadott Deck-ek</td>
+<td>Emberileg jóváhagyott végleges verziók</td>
+<td>Visszafeldolgozva mindháromba</td>
+</tr>
+</tbody>
+</table>
+<h3 id="forras-2-aktiv-tudas-valos-ideju-kutatas">Forrás 2: Aktív Tudás (Valós idejű Kutatás)</h3>
+<table>
+<thead>
+<tr>
+<th>Forrás</th>
+<th>Példa Adatok</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemini Search Grounding</td>
+<td>Ügyfél weboldala, pénzügyek, hírek, tulajdonosi szerkezet</td>
+</tr>
+<tr>
+<td>Cégnyilvántartás API-k</td>
+<td>e-cegjegyzek.hu, opten.hu, EU hatósági adatbázisok</td>
+</tr>
+<tr>
+<td>LLM Világtudás</td>
+<td>Iparági benchmarkok, M&amp;A normák, adószabályozás</td>
+</tr>
+<tr>
+<td>Nyilvános LinkedIn Adatok</td>
+<td>Kulcs döntéshozók, cégméret, legutóbbi felvételek</td>
+</tr>
+</tbody>
+</table>
+<h3 id="forras-3-llm-beepitett-tudas">Forrás 3: LLM Beépített Tudás</h3>
+<p>A Gemini betanított tudása iparágakról, szabályozásokról, legjobb gyakorlatokról és általános üzleti szakértelemről — elérhető bármiféle adatbázis-lekérdezés nélkül.</p>
+<h3 id="forras-4-visszacsatolasi-tudas-onfejleszto">Forrás 4: Visszacsatolási Tudás (Önfejlesztő)</h3>
+<table>
+<thead>
+<tr>
+<th>Esemény</th>
+<th>Művelet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PPTX változtatás nélkül elfogadva</td>
+<td>Teljes újrafeldolgozás — AI megtanulja, hogy ez jó volt</td>
+</tr>
+<tr>
+<td>PPTX szerkesztés után elfogadva</td>
+<td>Diff elemzés — AI megtanulja, mit javított az ember</td>
+</tr>
+<tr>
+<td>PPTX elutasítva</td>
+<td>Negatív példaként címkézve — AI kerüli ezt a mintát</td>
+</tr>
+<tr>
+<td>Ügyfélnél megnyert deal</td>
+<td>Magasabb súly a jövőbeli hasonlósági kereséseknél</td>
+</tr>
+<tr>
+<td>Ügyfélnél elvesztett deal</td>
+<td>Alacsonyabb súly — AI módosítja az árazást/megközelítést</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mind a négy forrás egyetlen AI kontextusba olvad → JSON Slide Blueprint → Végleges PPTX</strong></p>
+<hr />
+<h2 id="6-megvalositasi-utemterv">6. Megvalósítási Ütemterv</h2>
+<h3 id="1-fazis-alapozas-kesz">1. Fázis: Alapozás (Kész)</h3>
+<ul>
+<li>[x] PPTX szöveg kinyerési pipeline (pptx_to_mcp.sh)</li>
+<li>[x] Gemini beágyazási pipeline (embed_pptx.sh)</li>
+<li>[x] bdo_db pgvector-ral és bérlői particionálással</li>
+<li>[x] RAG visszakeresés ellenőrizve (0.72-0.75 hasonlóság)</li>
+<li>[x] 22+ BDO prezentáció feldolgozva</li>
+</ul>
+<h3 id="2-fazis-mely-tudas-kovetkezo">2. Fázis: Mély Tudás (Következő)</h3>
+<ul>
+<li>[ ] slidemind scan futtatása mind az 1000+ PPTX fájlon</li>
+<li>[ ] slidemind summarize --tenant BDO --theme FDD (Golden Seed-ek)</li>
+<li>[ ] slidemind summarize --tenant BDO --theme TDD</li>
+<li>[ ] Tudás-granularitás ellenőrzése (dia-szintű vs. prezentáció-szintű)</li>
+</ul>
+<h3 id="3-fazis-aktiv-intelligencia">3. Fázis: Aktív Intelligencia</h3>
+<ul>
+<li>[ ] Gemini Search Grounding API integrálása webes kutatáshoz</li>
+<li>[ ] Ügyfélkutatási modul építése (cégnyilvántartás, hírek, pénzügyek)</li>
+<li>[ ] Gazdagítási pipeline létrehozása: briefing → webes kutatás → gazdagított kontextus</li>
+<li>[ ] Kutatott adatok tárolása a RAG kontextus mellett jövőbeli felhasználásra</li>
+</ul>
+<h3 id="4-fazis-ai-blueprint-generator">4. Fázis: AI Blueprint Generátor</h3>
+<ul>
+<li>[ ] FDD Generátor MCP létrehozása Johanna-nak (JSON Slide Blueprint séma)</li>
+<li>[ ] Prompt tanítása RAG + Web + LLM tudásforrások kombinálására</li>
+<li>[ ] Blueprint generálás tesztelése: briefing → kutatás → JSON → validálás</li>
+<li>[ ] Többnyelvű támogatás hozzáadása (HU/EN)</li>
+</ul>
+<h3 id="5-fazis-pptx-epito-motor">5. Fázis: PPTX Építő Motor</h3>
+<ul>
+<li>[ ] BDO Master Layout .pptx beszerzése/létrehozása</li>
+<li>[ ] python-pptx építő script fejlesztése (scripts/forge_pptx.py)</li>
+<li>[ ] JSON dia-típusok → Master Layout dia-elrendezések leképezése</li>
+<li>[ ] Táblázatok, felsorolások, kétoszlopos, képek kezelése</li>
+<li>[ ] Borító dia dinamikus dátummal és bizalmassági megjegyzéssel</li>
+</ul>
+<h3 id="6-fazis-egyparancs-pipeline">6. Fázis: Egyparancs-Pipeline</h3>
+<ul>
+<li>[ ] deckforge forge CLI parancs létrehozása</li>
+<li>[ ] Bemenet: YAML/JSON briefing vagy interaktív kérdések</li>
+<li>[ ] Kimenet: Kész .pptx az output/ könyvtárban</li>
+<li>[ ] Opcionális: Johanna chat-alapú interaktív finomítás</li>
+<li>[ ] Opcionális: PDF exportálás a PPTX mellett</li>
+</ul>
+<h3 id="7-fazis-visszacsatolasi-hurok-es-onfejlesztes">7. Fázis: Visszacsatolási Hurok és Önfejlesztés</h3>
+<ul>
+<li>[ ] "Elfogadás / Elutasítás" UI építése a DeckForge-ban</li>
+<li>[ ] Elfogadásnál: végleges PPTX + webes kutatási adatok automatikus újrafeldolgozása</li>
+<li>[ ] Elutasítás szerkesztéssel: diff elemzés a javítások tanulásához</li>
+<li>[ ] Deal kimenetek nyomon követése (nyert/vesztett) a tudásminőség súlyozásához</li>
+<li>[ ] Minőségi pontozás: AI értékeli saját kimenetét az elfogadott ajánlatokhoz képest</li>
+</ul>
+<h3 id="8-fazis-skalazas">8. Fázis: Skálázás</h3>
+<ul>
+<li>[ ] Fennmaradó 1000+ PPTX fájl feldolgozása</li>
+<li>[ ] TDD, IA és Értékelési szolgáltatás-típusok hozzáadása</li>
+<li>[ ] Több-bérlős támogatás (BDO Magyarország, BDO Global)</li>
+<li>[ ] Ügyfél-intelligencia adatbázis (felhalmozott webes kutatás)</li>
+</ul>
+<hr />
+<h2 id="7-sikerkriteriumok">7. Sikerkritériumok</h2>
+<table>
+<thead>
+<tr>
+<th>Metrika</th>
+<th>Célérték</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ajánlat generálási idő</td>
+<td>Kevesebb mint 2 perc (AI feldolgozást beleértve)</td>
+</tr>
+<tr>
+<td>Szükséges emberi input</td>
+<td>Kevesebb mint 1 perc (ki, mit, mikor)</td>
+</tr>
+<tr>
+<td>Tartalmi pontosság</td>
+<td>90%+ egyezés senior partner standardokkal</td>
+</tr>
+<tr>
+<td>Arculati megfelelőség</td>
+<td>100% (Master Layout biztosítja az arculatot)</td>
+</tr>
+<tr>
+<td>Támogatott szolgáltatás-típusok</td>
+<td>FDD, TDD, IA, Értékelés</td>
+</tr>
+<tr>
+<td>Nyelvek</td>
+<td>Magyar, Angol</td>
+</tr>
+<tr>
+<td>Tudásnövekedés</td>
+<td>Minden elfogadott deck javítja a jövőbeli kimenetet</td>
+</tr>
+<tr>
+<td>Ügyfélkutatás mélysége</td>
+<td>Automatizált háttér webről + LLM-ből</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Az Antigravity Intelligence Ökoszisztémával épült</em>
+<em>DeckForge x Johanna x SlideMind x SlideForge</em></p>
+</body>
+</html>

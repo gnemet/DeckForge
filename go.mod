@@ -1,6 +1,6 @@
 module github.com/gnemet/DeckForge
 
-go 1.25.6
+go 1.26.4
 
 replace github.com/gnemet/datagrid => /home/gnemet/GitHub/datagrid
 

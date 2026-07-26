@@ -2,7 +2,7 @@ module github.com/gnemet/DeckForge
 
 go 1.26.4
 
-replace github.com/gnemet/datagrid => /home/gnemet/GitHub/datagrid
+replace github.com/gnemet/datagrid => ../datagrid
 
 require (
 	cloud.google.com/go/billing v1.21.0
